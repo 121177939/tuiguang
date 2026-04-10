@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>计算机</title>
+  <style>
+    :root{
+      --bg:#f4f5f7;
+      --card:#ffffff;
+      --text:#1f2430;
+      --muted:#8b8f97;
+      --line:#eceef2;
+      --blue1:#33b4f5;
+      --blue2:#14d1c4;
+      --soft:#eef8ff;
+      --shadow:0 10px 24px rgba(15,23,42,.08);
+      --shadow-soft:0 6px 16px rgba(15,23,42,.05);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    }
+    body{min-height:100vh}
+    .page{
+      max-width:420px;
+      margin:0 auto;
+      min-height:100vh;
+      padding:14px;
+    }
+    .sheet{
+      background:var(--card);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      border:1px solid rgba(17,24,39,.05);
+    }
+    .sheet-hd{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:800;
+    }
+    .sheet-sub{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:600;
+    }
+    .content{padding:14px}
+    .display{
+      background:linear-gradient(180deg,#f8fcff,#eef6ff);
+      border:1px solid #dbeafe;
+      border-radius:18px;
+      padding:14px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+    }
+    .display-top{
+      min-height:20px;
+      font-size:12px;
+      color:var(--muted);
+      text-align:right;
+      word-break:break-all;
+    }
+    .display-main{
+      min-height:52px;
+      margin-top:6px;
+      font-size:34px;
+      line-height:1.2;
+      font-weight:800;
+      text-align:right;
+      word-break:break-all;
+      color:#0f172a;
+    }
+    .tool-row{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+    .tool-btn,.key,.history-clear{
+      border:none;
+      border-radius:14px;
+      cursor:pointer;
+      font:inherit;
+    }
+    .tool-btn{
+      height:42px;
+      background:#f3f4f6;
+      color:#4b5563;
+      font-size:14px;
+      font-weight:700;
+      box-shadow:var(--shadow-soft);
+    }
+    .tool-btn.primary{
+      background:linear-gradient(180deg,var(--blue1),var(--blue2));
+      color:#fff;
+    }
+    .keypad{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      margin-top:14px;
+    }
+    .key{
+      height:54px;
+      background:#fff;
+      color:#111827;
+      font-size:20px;
+      font-weight:800;
+      box-shadow:var(--shadow-soft);
+      transition:transform .08s ease, box-shadow .12s ease, background .16s ease;
+    }
+    .key:active,.tool-btn:active,.history-item:active,.history-clear:active{transform:scale(.97)}
+    .key.soft{background:#f3f4f6;color:#4b5563}
+    .key.op{background:var(--soft);color:#177ddc}
+    .key.equal{background:linear-gradient(180deg,var(--blue1),var(--blue2));color:#fff}
+    .key.zero{grid-column:span 2}
+    .history-card{
+      margin-top:12px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:var(--shadow-soft);
+    }
+    .history-head{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .history-title{font-size:15px;font-weight:800}
+    .history-clear{
+      height:34px;
+      padding:0 12px;
+      background:#eef6ff;
+      color:#177ddc;
+      font-size:12px;
+      font-weight:700;
+    }
+    .history-list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-height:260px;
+      overflow:auto;
+      padding:12px;
+    }
+    .history-empty{
+      padding:18px 12px;
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+      border:1px dashed var(--line);
+      border-radius:14px;
+      background:#fafbfc;
+    }
+    .history-item{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:linear-gradient(180deg,#fff,#fbfdff);
+      cursor:pointer;
+    }
+    .history-exp{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.6;
+      word-break:break-all;
+    }
+    .history-res{
+      margin-top:4px;
+      font-size:18px;
+      font-weight:800;
+      color:#0f172a;
+      word-break:break-all;
+    }
+    .tips{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+    .tip{
+      padding:12px;
+      border-radius:14px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+    }
+    .tip strong{display:block;font-size:13px;margin-bottom:5px}
+    .tip span{font-size:12px;color:var(--muted);line-height:1.6}
+    @media (max-width:360px){
+      .page{padding:12px}
+      .display-main{font-size:30px}
+      .key{height:50px;font-size:18px}
+      .tips{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="sheet">
+      <div class="sheet-hd">
+        <span>计算机</span>
+        <span class="sheet-sub">撸货工具版</span>
+      </div>
+      <div class="content">
+        <div class="display">
+          <div class="display-top" id="expressionPreview">就绪</div>
+          <div class="display-main" id="display">0</div>
+        </div>
+
+        <div class="tool-row">
+          <button class="tool-btn" id="backspaceBtn">退格</button>
+          <button class="tool-btn" id="clearEntryBtn">CE</button>
+          <button class="tool-btn primary" id="clearAllBtn">清空</button>
+        </div>
+
+        <div class="keypad">
+          <button class="key soft" data-value="7">7</button>
+          <button class="key soft" data-value="8">8</button>
+          <button class="key soft" data-value="9">9</button>
+          <button class="key op" data-op="/">÷</button>
+
+          <button class="key" data-value="4">4</button>
+          <button class="key" data-value="5">5</button>
+          <button class="key" data-value="6">6</button>
+          <button class="key op" data-op="*">×</button>
+
+          <button class="key" data-value="1">1</button>
+          <button class="key" data-value="2">2</button>
+          <button class="key" data-value="3">3</button>
+          <button class="key op" data-op="-">−</button>
+
+          <button class="key zero" data-value="0">0</button>
+          <button class="key" data-value=".">.</button>
+          <button class="key op" data-op="+">+</button>
+
+          <button class="key soft" id="plusMinusBtn">±</button>
+          <button class="key soft" id="percentBtn">%</button>
+          <button class="key equal" id="equalBtn" style="grid-column:span 2">=</button>
+        </div>
+
+        <div class="history-card">
+          <div class="history-head">
+            <span class="history-title">历史记录</span>
+            <button class="history-clear" id="clearHistoryBtn">清空</button>
+          </div>
+          <div class="history-list" id="historyList"></div>
+        </div>
+
+        <div class="tips">
+          <div class="tip">
+            <strong>更适合手机</strong>
+            <span>单栏紧凑布局，打开后更接近你工具页的系统风格。</span>
+          </div>
+          <div class="tip">
+            <strong>本地历史</strong>
+            <span>历史自动保存在浏览器本地，点历史结果可继续计算。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      var displayEl = document.getElementById('display');
+      var expressionPreviewEl = document.getElementById('expressionPreview');
+      var historyListEl = document.getElementById('historyList');
+      var STORAGE_KEY = 'system_calc_history_v2_toolhub';
+      var history = loadHistory();
+
+      var current = '0';
+      var previous = null;
+      var operator = null;
+      var waitingNext = false;
+
+      function loadHistory(){
+        try{
+          var raw = localStorage.getItem(STORAGE_KEY);
+          var parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        }catch(err){
+          return [];
+        }
+      }
+
+      function saveHistory(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, 30)));
+      }
+
+      function formatNumber(value){
+        if (!isFinite(value)) return '错误';
+        var str = String(value);
+        if (str.indexOf('e') > -1) return Number(value).toPrecision(10).replace(/\.0+$|(?<=\..*?)0+$/g, '');
+        var parts = str.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return parts.join('.');
+      }
+
+      function normalizeResult(value){
+        if (!isFinite(value)) return '错误';
+        var fixed = Math.round((value + Number.EPSILON) * 1000000000000) / 1000000000000;
+        return String(fixed);
+      }
+
+      function symbolOf(op){
+        return ({'+':'+','-':'−','*':'×','/':'÷'})[op] || op;
+      }
+
+      function updateDisplay(){
+        displayEl.textContent = formatNumber(current);
+        if (previous !== null && operator){
+          expressionPreviewEl.textContent = formatNumber(previous) + ' ' + symbolOf(operator) + (waitingNext ? '' : ' ' + formatNumber(current));
+        }else{
+          expressionPreviewEl.textContent = current === '0' ? '就绪' : formatNumber(current);
+        }
+      }
+
+      function inputDigit(digit){
+        if (waitingNext){
+          current = digit;
+          waitingNext = false;
+        }else{
+          current = current === '0' ? digit : current + digit;
+        }
+        updateDisplay();
+      }
+
+      function inputDot(){
+        if (waitingNext){
+          current = '0.';
+          waitingNext = false;
+        }else if (current.indexOf('.') === -1){
+          current += '.';
+        }
+        updateDisplay();
+      }
+
+      function clearEntry(){
+        current = '0';
+        updateDisplay();
+      }
+
+      function clearAll(){
+        current = '0';
+        previous = null;
+        operator = null;
+        waitingNext = false;
+        updateDisplay();
+      }
+
+      function backspace(){
+        if (waitingNext) return;
+        if (current.length <= 1 || (current.length === 2 && current.charAt(0) === '-')) current = '0';
+        else current = current.slice(0, -1);
+        updateDisplay();
+      }
+
+      function toggleSign(){
+        if (current === '0') return;
+        current = current.charAt(0) === '-' ? current.slice(1) : '-' + current;
+        updateDisplay();
+      }
+
+      function percent(){
+        current = normalizeResult(Number(current) / 100);
+        updateDisplay();
+      }
+
+      function compute(left, right, op){
+        left = Number(left);
+        right = Number(right);
+        if (op === '+') return left + right;
+        if (op === '-') return left - right;
+        if (op === '*') return left * right;
+        if (op === '/') return right === 0 ? NaN : left / right;
+        return right;
+      }
+
+      function chooseOperator(nextOp){
+        if (operator && !waitingNext){
+          var result = compute(previous, current, operator);
+          var expression = formatNumber(previous) + ' ' + symbolOf(operator) + ' ' + formatNumber(current);
+          current = normalizeResult(result);
+          if (current === '错误'){
+            expressionPreviewEl.textContent = expression;
+            displayEl.textContent = '错误';
+            previous = null;
+            operator = null;
+            waitingNext = true;
+            return;
+          }
+          previous = Number(current);
+        }else{
+          previous = Number(current);
+        }
+        operator = nextOp;
+        waitingNext = true;
+        updateDisplay();
+      }
+
+      function calculate(){
+        if (operator === null || previous === null || waitingNext) return;
+        var expression = formatNumber(previous) + ' ' + symbolOf(operator) + ' ' + formatNumber(current);
+        var result = compute(previous, current, operator);
+        var normalized = normalizeResult(result);
+        if (normalized === '错误'){
+          expressionPreviewEl.textContent = expression;
+          displayEl.textContent = '错误';
+          current = '0';
+          previous = null;
+          operator = null;
+          waitingNext = true;
+          return;
+        }
+        history.unshift({ expression: expression, result: normalized, time: Date.now() });
+        history = history.slice(0, 30);
+        saveHistory();
+        renderHistory();
+        current = normalized;
+        previous = null;
+        operator = null;
+        waitingNext = true;
+        expressionPreviewEl.textContent = expression + ' =';
+        updateDisplay();
+      }
+
+      function renderHistory(){
+        if (!history.length){
+          historyListEl.innerHTML = '<div class="history-empty">还没有历史记录</div>';
+          return;
+        }
+        historyListEl.innerHTML = history.map(function(item, index){
+          return '<div class="history-item" data-index="' + index + '">' +
+            '<div class="history-exp">' + item.expression + '</div>' +
+            '<div class="history-res">' + formatNumber(item.result) + '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      function useHistory(index){
+        var item = history[index];
+        if (!item) return;
+        current = String(item.result);
+        previous = null;
+        operator = null;
+        waitingNext = false;
+        updateDisplay();
+      }
+
+      document.querySelectorAll('[data-value]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var value = btn.getAttribute('data-value');
+          if (value === '.') inputDot();
+          else inputDigit(value);
+        });
+      });
+
+      document.querySelectorAll('[data-op]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          chooseOperator(btn.getAttribute('data-op'));
+        });
+      });
+
+      document.getElementById('equalBtn').addEventListener('click', calculate);
+      document.getElementById('clearEntryBtn').addEventListener('click', clearEntry);
+      document.getElementById('clearAllBtn').addEventListener('click', clearAll);
+      document.getElementById('backspaceBtn').addEventListener('click', backspace);
+      document.getElementById('plusMinusBtn').addEventListener('click', toggleSign);
+      document.getElementById('percentBtn').addEventListener('click', percent);
+      document.getElementById('clearHistoryBtn').addEventListener('click', function(){
+        history = [];
+        saveHistory();
+        renderHistory();
+      });
+
+      historyListEl.addEventListener('click', function(e){
+        var item = e.target.closest('.history-item');
+        if (!item) return;
+        useHistory(Number(item.getAttribute('data-index')));
+      });
+
+      window.addEventListener('keydown', function(e){
+        var key = e.key;
+        if (/^[0-9]$/.test(key)) inputDigit(key);
+        else if (key === '.') inputDot();
+        else if (['+','-','*','/'].indexOf(key) > -1) chooseOperator(key);
+        else if (key === 'Enter' || key === '=') { e.preventDefault(); calculate(); }
+        else if (key === 'Backspace') backspace();
+        else if (key === 'Escape') clearAll();
+        else return;
+      });
+
+      renderHistory();
+      updateDisplay();
+    })();
+  </script>
+</body>
+</html>
